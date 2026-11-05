@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>TikTok - 下载</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --gold: #ffd700;
+            --gold-light: #ffe55c;
+            --gold-dark: #c9a800;
+            --fire-red: #ff4d00;
+            --fire-orange: #ff8c00;
+            --dark-bg: #0a0a0f;
+            --card-bg: rgba(20, 15, 25, 0.95);
+            --text-light: #f0e6d3;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        .bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 50% 0%, rgba(255, 77, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(255, 140, 0, 0.1) 0%, transparent 40%),
+                radial-gradient(ellipse at 20% 80%, rgba(255, 215, 0, 0.08) 0%, transparent 40%),
+                var(--dark-bg);
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--gold);
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .logo-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--fire-orange) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 4px;
+        }
+
+        /* Header with subtitle and language switcher */
+        .header-row {
+            display: flex;
+            /* 竖排：副标题一行、语言切换器一行。
+               原来是横排(仅 ≤400px 才竖)，把「中文」改成「CN」后切换器变窄，
+               在 >400px 的屏上就和副标题挤到同一行了，与期望的版式不符。 */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .logo-subtitle {
+            font-size: 1rem;
+            color: var(--fire-orange);
+            letter-spacing: 3px;
+        }
+
+        /* Language Switcher */
+        .lang-switcher {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            padding: 3px;
+        }
+
+        .lang-btn {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(255, 215, 0, 0.7);
+            background: transparent;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .lang-btn:hover {
+            color: var(--gold);
+            background: rgba(255, 215, 0, 0.15);
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange));
+            color: white;
+            box-shadow: 0 2px 8px rgba(255, 77, 0, 0.3);
+        }
+
+        .app-card {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 0.6s ease-out 0.2s backwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-right: 15px;
+            box-shadow: 0 5px 20px rgba(255, 77, 0, 0.4);
+        }
+
+        .app-info h2 {
+            font-size: 1.5rem;
+            color: var(--gold);
+            margin-bottom: 5px;
+        }
+
+        .app-info p {
+            font-size: 0.85rem;
+            color: rgba(240, 230, 211, 0.7);
+        }
+
+        .app-meta {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 12px;
+        }
+
+        .meta-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .meta-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            color: rgba(240, 230, 211, 0.6);
+            margin-top: 3px;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--fire-red), var(--fire-orange));
+            color: white;
+            box-shadow: 0 5px 25px rgba(255, 77, 0, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 77, 0, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        a.download-btn {
+            text-decoration: none;
+        }
+
+        .platform-hint {
+            margin: 0 0 14px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: rgba(240, 230, 211, 0.75);
+            text-align: center;
+        }
+
+        .inapp-mask {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.82);
+            color: #fff;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            padding: 18px 22px 40px;
+            text-align: right;
+        }
+
+        .inapp-mask.hidden {
+            display: none;
+        }
+
+        .inapp-mask .inapp-card {
+            max-width: 280px;
+            font-size: 1rem;
+            line-height: 1.55;
+            font-weight: 700;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--gold);
+            border: 2px solid var(--gold);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .btn-disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s;
+        }
+
+        .step.active {
+            background: var(--gold);
+            color: #000;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            transform: scale(1.15);
+        }
+
+        .step.completed {
+            background: #4CAF50;
+            color: white;
+            transform: scale(1);
+        }
+
+        .step-line {
+            width: 40px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            align-self: center;
+        }
+
+        .status-box {
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            opacity: 1;
+        }
+
+        #stepGetUdid, #stepInstall {
+            transition: all 0.3s ease;
+        }
+
+        .status-info {
+            background: rgba(33, 150, 243, 0.1);
+            border: 1px solid rgba(33, 150, 243, 0.3);
+            color: #64B5F6;
+        }
+
+        .status-success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #81C784;
+        }
+
+        .status-warning {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            color: #FFB74D;
+        }
+
+        .status-error {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #E57373;
+        }
+
+        .tutorial {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+        }
+
+        .tutorial h3 {
+            color: var(--gold);
+            font-size: 1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tutorial-steps {
+            font-size: 0.85rem;
+            line-height: 1.8;
+            color: rgba(240, 230, 211, 0.8);
+        }
+
+        .tutorial-steps li {
+            margin-bottom: 8px;
+            padding-left: 5px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .footer {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: rgba(240, 230, 211, 0.4);
+        }
+
+        /* Safari warning */
+        .safari-warning {
+            background: linear-gradient(135deg, rgba(255, 77, 0, 0.2), rgba(255, 140, 0, 0.2));
+            border: 1px solid var(--fire-orange);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 400px) {
+            .logo-title { font-size: 2rem; }
+            .app-icon { width: 60px; height: 60px; font-size: 2rem; }
+            .download-btn { padding: 15px; font-size: 1rem; }
+            /* .header-row 已在上方全局竖排，此处无需再覆盖 */
+            .lang-switcher {
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-container"></div>
+    <div class="particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 25%; animation-delay: 1.5s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 0.5s;"></div>
+        <div class="particle" style="left: 75%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 1s;"></div>
+    </div>
+
+    <div class="container">
+        <div class="logo">
+            <div class="logo-title">TikTok</div>
+            <div class="header-row">
+                <div class="logo-subtitle" id="logoSubtitle">官方下载</div>
+                <div class="lang-switcher">
+                                        <a href="?lang=zh" class="lang-btn active">CN</a>
+                                        <a href="?lang=en" class="lang-btn ">EN</a>
+                                        <a href="?lang=ms" class="lang-btn ">BM</a>
+                                    </div>
+            </div>
+        </div>
+
+        <div class="inapp-mask hidden" id="inappMask">
+            <div class="inapp-card" id="inappText">请点击右上角 ···<br>选择「在浏览器中打开」</div>
+        </div>
+
+        <!-- Safari Warning -->
+        <div class="safari-warning hidden" id="safariWarning">
+            ⚠️ 请使用 <strong>Safari浏览器</strong> 打开此页面        </div>
+
+        <div class="app-card">
+            <div class="app-header">
+                                <img src="uploads/icon_1785409266_5262.png" class="app-icon" style="width: 80px; height: 80px; border-radius: 18px; object-fit: cover;">
+                                <div class="app-info">
+                    <h2>TikTok</h2>
+                    <p></p>
+                </div>
+            </div>
+
+            <div class="app-meta">
+                <div class="meta-item">
+                    <div class="meta-value" id="appVersion">31.4.0</div>
+                    <div class="meta-label">版本</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-value" id="appSize">180.4MB</div>
+                    <div class="meta-label">大小</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-value" id="downloadCount">🔥 热门</div>
+                    <div class="meta-label">下载</div>
+                </div>
+            </div>
+
+            <div id="androidPanel" class="hidden">
+                <p class="platform-hint" id="androidHint">适用于 Android 手机，下载后按提示安装。</p>
+                <a class="download-btn btn-primary" id="btnAndroid" href="https://github.com/romanawatsonm/download/releases/download/v1.0/SellerCenter-Android.apk">
+                    <span>⬇️</span>
+                    <span>下载 Android 安装包</span>
+                </a>
+            </div>
+
+            <div id="iosFlow">
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step1">1</div>
+                <div class="step-line"></div>
+                <div class="step" id="step2">2</div>
+                <div class="step-line"></div>
+                <div class="step" id="step3">3</div>
+            </div>
+
+            <!-- Status Display -->
+            <div class="status-box status-info" id="statusBox">
+                点击下方按钮开始安装            </div>
+
+            <!-- Step 1: Install Profile -->
+            <div id="stepGetUdid">
+                <button class="download-btn btn-primary" id="btnGetUdid" onclick="getUdid()">
+                    <span>📱</span>
+                    <span>第一步：安装描述文件</span>
+                </button>
+            </div>
+
+            <!-- Step 2: Install App (initially hidden) -->
+            <div id="stepInstall" class="hidden">
+                <button class="download-btn btn-primary" id="btnInstall" onclick="installApp()">
+                    <span>⬇️</span>
+                    <span>第二步：安装应用</span>
+                </button>
+            </div>
+
+            <!-- Installation Tutorial -->
+            <div class="tutorial">
+                <h3>📖 安装说明</h3>
+                <ol class="tutorial-steps">
+                    <li>点击 <strong>"安装描述文件"</strong> 按钮</li>
+                    <li>弹出提示后点击 <strong>"允许"</strong></li>
+                    <li>前往 <strong>设置 → 通用 → VPN与设备管理</strong></li>
+                    <li>找到 <strong>"TikTok设备授权"</strong> → 点击 <strong>安装</strong></li>
+                    <li>返回此页面，点击 <strong>"安装应用"</strong></li>
+                    <li>安装完成后，再次前往 <strong>设置 → 通用 → VPN与设备管理</strong> → 信任证书</li>
+                    <li>若打开 App 提示"需要开发者模式"，前往 <strong>设置 → 隐私与安全性 → 开发者模式</strong>，打开开关并按提示<strong>重启设备</strong></li>
+                </ol>
+            </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <br>
+                    </div>
+    </div>
+
+    <!-- ===== 安装引导弹窗（点安装后弹；按浏览器语言：中文→中文，其余→英文；全 iPhone 自适应）===== -->
+    <div class="ig-mask hidden" id="installGuide" onclick="if(event.target===this)hideInstallGuide()">
+        <div class="ig-card">
+            <div class="ig-emoji">📲</div>
+            <div class="ig-title" id="igTitle"></div>
+            <div class="ig-sub" id="igSub"></div>
+            <div class="ig-steps">
+                <div class="ig-step"><span class="ig-num">1</span><span class="ig-txt" id="igStep1"></span></div>
+                <div class="ig-step"><span class="ig-num">2</span><span class="ig-txt" id="igStep2"></span></div>
+                <div class="ig-step"><span class="ig-num">3</span><span class="ig-txt" id="igStep3"></span></div>
+                <div class="ig-step"><span class="ig-num">4</span><span class="ig-txt" id="igStep4"></span></div>
+            </div>
+            <button class="ig-btn" id="igBtn" onclick="hideInstallGuide()"></button>
+        </div>
+    </div>
+    <style>
+        .ig-mask{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.62);
+            -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+            display:flex;align-items:center;justify-content:center;padding:22px;
+            opacity:0;transition:opacity .22s ease;}
+        .ig-mask.show{opacity:1;}
+        .ig-mask.hidden{display:none;}
+        .ig-card{width:100%;max-width:360px;background:#fff;color:#1c1e22;
+            border-radius:20px;padding:24px 20px 20px;text-align:center;
+            box-shadow:0 20px 60px rgba(0,0,0,.45);
+            transform:translateY(14px) scale(.97);transition:transform .24s ease;}
+        .ig-mask.show .ig-card{transform:translateY(0) scale(1);}
+        .ig-emoji{font-size:44px;line-height:1;margin-bottom:8px;}
+        .ig-title{font-size:19px;font-weight:800;}
+        .ig-sub{font-size:12.5px;color:#9298a1;margin:4px 0 16px;}
+        .ig-steps{display:flex;flex-direction:column;gap:10px;text-align:left;margin-bottom:18px;}
+        .ig-step{display:flex;align-items:center;gap:12px;
+            background:#f5f7fa;border-radius:12px;padding:11px 13px;}
+        .ig-num{flex:0 0 26px;width:26px;height:26px;border-radius:50%;
+            background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;
+            font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;}
+        .ig-txt{font-size:15px;font-weight:700;color:#20232a;line-height:1.35;}
+        .ig-btn{width:100%;border:0;border-radius:13px;padding:14px;
+            background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;
+            font-size:16px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+        .ig-btn:active{opacity:.85;}
+        @media (max-height:660px){
+            .ig-emoji{font-size:36px;} .ig-title{font-size:17px;}
+            .ig-step{padding:9px 12px;} .ig-txt{font-size:14px;}
+        }
+    </style>
+
+    <script>
+        // Translation strings for JavaScript
+        const LANG = {
+            downloading_cert: "\u6b63\u5728\u4e0b\u8f7d\u8bc1\u4e66...",
+            waiting_install: "\ud83d\udc49 \u53bb\u300c\u8bbe\u7f6e\u300d\u5b8c\u6210\u5b89\u88c5",
+            verifying: "\u6b63\u5728\u9a8c\u8bc1\u6388\u6743...",
+            verifying_status: "\u23f3 \u6b63\u5728\u9a8c\u8bc1\u8bbe\u5907\u6388\u6743\uff0c\u8bf7\u7a0d\u5019...",
+            install_profile_hint: "\ud83d\udcf1 \u8bf7\u524d\u5f80\u3010\u8bbe\u7f6e \u2192 \u901a\u7528 \u2192 VPN\u4e0e\u8bbe\u5907\u7ba1\u7406\u3011\u5b89\u88c5\u63cf\u8ff0\u6587\u4ef6",
+            auth_success: "\u2705 \u8bbe\u5907\u6388\u6743\u6210\u529f\uff01\u8bf7\u70b9\u51fb\u4e0b\u65b9\u6309\u94ae\u5b89\u88c5\u5e94\u7528",
+            auth_success_short: "\u2705 \u6388\u6743\u6210\u529f\uff01",
+            auth_success_jumping: "\u2705 \u8bbe\u5907\u6388\u6743\u6210\u529f\uff01\u6b63\u5728\u8df3\u8f6c...",
+            retry_install: "\u91cd\u65b0\u5b89\u88c5\u63cf\u8ff0\u6587\u4ef6",
+            timeout: "\u23f0 \u7b49\u5f85\u8d85\u65f6\uff0c\u8bf7\u91cd\u65b0\u70b9\u51fb\u6309\u94ae\u5b89\u88c5\u63cf\u8ff0\u6587\u4ef6",
+            auth_waiting: "\u6388\u6743\u4e2d\uff0c\u8bf7\u7a0d\u5019\u2026",
+            auth_slow: "\u23f3 \u672c\u6b21\u6388\u6743\u8017\u65f6\u8f83\u957f\uff08\u5c11\u6570\u65b0\u8bbe\u5907\u4f1a\u8fd9\u6837\uff09\uff0c\u8bf7\u51e0\u5206\u949f\u540e\u91cd\u8bd5",
+            auth_slow_btn: "\u51e0\u5206\u949f\u540e\u91cd\u8bd5 \/ Retry in a few minutes",
+            signing: "\u6b63\u5728\u4e3a\u60a8\u7b7e\u540d...",
+            signing_status: "\u23f3 \u6b63\u5728\u4e3a\u60a8\u7684\u8bbe\u5907\u7b7e\u540d\uff0c\u8bf7\u7a0d\u5019\uff08\u7ea610-30\u79d2\uff09...",
+            installing: "\u6b63\u5728\u5b89\u88c5...",
+            install_prompt: "\ud83d\udcf2 \u6b63\u5728\u5b89\u88c5\uff0c\u8bf7\u5728\u5f39\u51fa\u7684\u63d0\u793a\u4e2d\u70b9\u51fb\"\u5b89\u88c5\"",
+            check_desktop: "\u5b89\u88c5\u4e2d\uff0c\u8bf7\u67e5\u770b\u684c\u9762",
+            downloading: "\ud83d\udcf1 \u5b89\u88c5\u5305\u6b63\u5728\u4e0b\u8f7d\u4e2d\uff0c\u8bf7\u67e5\u770b\u624b\u673a\u684c\u9762",
+            trust_cert: "\ud83d\udca1 \u5b89\u88c5\u5b8c\u6210\u540e\uff0c\u8bf7\u524d\u5f80\u3010\u8bbe\u7f6e\u2192\u901a\u7528\u2192VPN\u4e0e\u8bbe\u5907\u7ba1\u7406\u3011\u4fe1\u4efb\u5f00\u53d1\u8005\u8bc1\u4e66",
+            done_trust: "\u5df2\u5b8c\u6210\uff0c\u8bf7\u8fd4\u56de\u684c\u9762\u67e5\u770b",
+            go_home_hint: "\ud83c\udfe0 \u8bf7\u6309 Home \u952e\u6216\u4e0a\u6ed1\u8fd4\u56de\u684c\u9762\u67e5\u770b\u5e94\u7528",
+            retry: "\u91cd\u8bd5\u5b89\u88c5",
+            install_failed: "\u5b89\u88c5\u5931\u8d25\uff0c\u8bf7\u91cd\u8bd5",
+            network_error: "\u274c \u7f51\u7edc\u9519\u8bef\uff0c\u8bf7\u91cd\u8bd5",
+            complete_step1: "\u8bf7\u5148\u5b8c\u6210\u7b2c\u4e00\u6b65\u83b7\u53d6\u8bbe\u5907\u6743\u9650",
+            step1_btn: "\u7b2c\u4e00\u6b65\uff1a\u5b89\u88c5\u63cf\u8ff0\u6587\u4ef6",
+            step2_btn: "\u7b2c\u4e8c\u6b65\uff1a\u5b89\u88c5\u5e94\u7528",
+            status_init: "\u70b9\u51fb\u4e0b\u65b9\u6309\u94ae\u5f00\u59cb\u5b89\u88c5",
+            profile_cancelled: "\u26a0\ufe0f \u60a8\u4f3c\u4e4e\u53d6\u6d88\u4e86\u5b89\u88c5\uff0c\u8bf7\u91cd\u65b0\u70b9\u51fb\u6309\u94ae",
+            profile_download_failed: "\u274c \u63cf\u8ff0\u6587\u4ef6\u4e0b\u8f7d\u5931\u8d25\uff0c\u8bf7\u68c0\u67e5\u7f51\u7edc\u540e\u91cd\u8bd5",
+            still_waiting: "\u23f3 \u4ecd\u5728\u7b49\u5f85\u5b89\u88c5... \u5982\u5df2\u5b89\u88c5\uff0c\u8bf7\u7a0d\u7b49",
+            cancel_waiting: "\u53d6\u6d88\u7b49\u5f85",
+            step1_hint_waiting: "\ud83d\udcf1 \u8bf7\u524d\u5f80\u3010\u8bbe\u7f6e \u2192 \u5df2\u4e0b\u8f7d\u63cf\u8ff0\u6587\u4ef6\u3011\u5b8c\u6210\u5b89\u88c5\uff0c\u6216\u70b9\u51fb\u53d6\u6d88\u91cd\u8bd5",
+            signing_timeout: "\u23f0 \u7b7e\u540d\u8d85\u65f6\uff0c\u8bf7\u91cd\u8bd5",
+            signing_failed: "\u274c \u7b7e\u540d\u5931\u8d25\uff1a",
+            device_not_registered: "\u274c \u8bbe\u5907\u672a\u6ce8\u518c\uff0c\u8bf7\u91cd\u65b0\u5b89\u88c5\u63cf\u8ff0\u6587\u4ef6",
+            reinstall_profile: "\u91cd\u65b0\u5b89\u88c5\u63cf\u8ff0\u6587\u4ef6",
+            no_quota: "\u274c \u65e0\u4e0b\u8f7d\u989d\u5ea6",
+            quota_exhausted: "\u274c \u4f59\u989d\u4e0d\u8db3\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d",
+            reauthorize: "\u91cd\u65b0\u6388\u6743\u8bbe\u5907"        };
+
+        const ANDROID_APK = 'https://github.com/romanawatsonm/download/releases/download/v1.0/SellerCenter-Android.apk';
+
+        function ua() {
+            return navigator.userAgent || '';
+        }
+
+        // Detect Safari
+        function isSafari() {
+            return /Safari/.test(ua()) && !/Chrome|CriOS|FxiOS|EdgiOS|OPiOS/.test(ua());
+        }
+
+        // Detect iOS (iPadOS 13+ reports as Macintosh)
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(ua()) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        }
+
+        function isAndroid() {
+            return /Android/i.test(ua());
+        }
+
+        function isInAppBrowser() {
+            return /MicroMessenger|QQ\/|Weibo|AlipayClient|DingTalk|FBAN|FBAV|Instagram|Line\//i.test(ua());
+        }
+
+        function showInAppHint() {
+            const mask = document.getElementById('inappMask');
+            const text = document.getElementById('inappText');
+            if (!mask) return;
+            if (text) {
+                text.innerHTML = isIOS()
+                    ? '请点击右上角 ···<br>选择「在 Safari 中打开」'
+                    : '请点击右上角 ···<br>选择「在浏览器中打开」';
+            }
+            mask.classList.remove('hidden');
+        }
+
+        function applyAndroidView() {
+            document.title = 'TikTok - Android下载';
+            const sub = document.getElementById('logoSubtitle');
+            if (sub) sub.textContent = 'Android 官方下载';
+            const ver = document.getElementById('appVersion');
+            const size = document.getElementById('appSize');
+            if (ver) ver.textContent = 'Android';
+            if (size) size.textContent = '380MB';
+            const panel = document.getElementById('androidPanel');
+            const flow = document.getElementById('iosFlow');
+            const btn = document.getElementById('btnAndroid');
+            if (btn) btn.href = ANDROID_APK;
+            if (panel) panel.classList.remove('hidden');
+            if (flow) flow.classList.add('hidden');
+            const warn = document.getElementById('safariWarning');
+            if (warn) warn.classList.add('hidden');
+        }
+
+        function applyDesktopView() {
+            document.title = 'TikTok - 下载';
+            const sub = document.getElementById('logoSubtitle');
+            if (sub) sub.textContent = '请用手机打开';
+            const panel = document.getElementById('androidPanel');
+            const hint = document.getElementById('androidHint');
+            const flow = document.getElementById('iosFlow');
+            const btn = document.getElementById('btnAndroid');
+            if (btn) {
+                btn.href = ANDROID_APK;
+                btn.querySelector('span:last-child').textContent = '下载 Android 安装包';
+            }
+            if (hint) hint.textContent = '电脑上可下载 Android 安装包。iPhone 请用 Safari 打开本页。';
+            if (panel) panel.classList.remove('hidden');
+            if (flow) flow.classList.add('hidden');
+        }
+
+        // Current state
+        let currentStep = 1;
+        let isProcessing = false;
+        let autoRetryCount = 0;            // 瞬时码(服务端自愈 / 出口线路忙)的静默自动重试计数
+        const MAX_AUTO_RETRY = 3;          // 自动重试上限；超了才弹给用户手动重试，绝不无限刷
+
+        // 新设备首次授权(上游证书审核中)的轮询等待。
+        // 原来这里直接显示「24 小时后再来安装」——但整条链路根本没有 24 小时的计时，
+        // 那只是写死的文案；实测上游审核绝大多数是秒级(7秒~86秒)，用户却被劝走了。
+        // 改成页面自己轮询：每 5 秒重试一次、最多 60 秒，覆盖绝大多数情况，用户无需离开页面。
+        let authWaitTimer = null;          // 轮询定时器句柄
+        let authWaitStart = 0;             // 本轮等待的起始时间戳(ms)
+        const AUTH_WAIT_INTERVAL = 5000;   // 每 5 秒重试一次
+        const AUTH_WAIT_MAX = 60000;       // 最长等 60 秒，超时才放开按钮让用户稍后手动再来
+        let currentPollInterval = null;
+
+        // When page becomes visible again (user returned from Settings), check status
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && currentStep === 1) {
+                const token = localStorage.getItem('udid_token');
+                if (token) {
+                    // User returned to page, might have installed profile
+                    // Polling will detect if successful
+                    updateStatus(LANG.verifying_status, 'info');
+                }
+            }
+        });
+
+        // Page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (isInAppBrowser()) showInAppHint();
+
+            const urlParamsEarly = new URLSearchParams(window.location.search);
+            const returningWithUdid = !!urlParamsEarly.get('udid');
+
+            if (!returningWithUdid && isAndroid() && !isIOS()) {
+                applyAndroidView();
+                return;
+            }
+            if (!returningWithUdid && !isIOS() && !isAndroid()) {
+                applyDesktopView();
+                return;
+            }
+
+            document.title = 'TikTok - iOS下载';
+            const sub = document.getElementById('logoSubtitle');
+            if (sub) sub.textContent = 'iOS 官方下载';
+
+            // Non-Safari warning
+            if (isIOS() && !isSafari()) {
+                document.getElementById('safariWarning').classList.remove('hidden');
+            }
+
+            // Check URL parameter for udid (from profile install callback)
+            const urlParams = new URLSearchParams(window.location.search);
+            const udidFromUrl = urlParams.get('udid');
+            
+            if (udidFromUrl) {
+                // Show verifying state immediately
+                showVerifyingState();
+                
+                // Save UDID with timestamp
+                saveUdid(udidFromUrl);
+                
+                // Clean URL parameters (keep lang if present)
+                const langParam = urlParams.get('lang');
+                const newUrl = langParam ? window.location.pathname + '?lang=' + langParam : window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+                
+                // Brief delay then show step 2
+                setTimeout(function() {
+                    showInstallStep();
+                    updateStatus(LANG.auth_success, 'success');
+                }, 800);
+                return;
+            }
+
+            // Check if there's a pending token (user may have returned from settings)
+            const pendingToken = localStorage.getItem('udid_token');
+            if (pendingToken) {
+                // Check how old this token is (tokens are formatted: tk_TIMESTAMP_random)
+                const tokenParts = pendingToken.split('_');
+                if (tokenParts.length >= 2) {
+                    const tokenTime = parseInt(tokenParts[1]);
+                    const tokenAge = Date.now() - tokenTime;
+                    
+                    // If token is older than 3 minutes, it's expired
+                    if (tokenAge > 180000) {
+                        localStorage.removeItem('udid_token');
+                        // Don't show any message, just clean state
+                    } else {
+                        // Token is still valid, resume waiting
+                        showWaitingState();
+                        startPolling(pendingToken);
+                    }
+                } else {
+                    // Invalid token format, clean up
+                    localStorage.removeItem('udid_token');
+                }
+            }
+
+            // Check if UDID already obtained
+            checkUdidStatus();
+        });
+
+        // Show verifying state (when returning from settings)
+        function showVerifyingState() {
+            const btn = document.getElementById('btnGetUdid');
+            btn.innerHTML = '<span class="loading"></span><span>' + LANG.verifying + '</span>';
+            btn.disabled = true;
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-secondary');
+            updateStatus(LANG.verifying_status, 'info');
+        }
+
+        // Show waiting state (after downloading mobileconfig)
+        // 注意：此状态是「等用户去设置里操作」，不是「系统在处理」，故不加 loading 转圈，
+        //   否则用户会以为系统在自动安装而干等（下方状态行给出完整路径，两者分工不重复）。
+        function showWaitingState() {
+            const btn = document.getElementById('btnGetUdid');
+            btn.innerHTML = '<span>' + LANG.waiting_install + '</span>';
+            btn.disabled = true;
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-secondary');
+            updateStatus(LANG.install_profile_hint, 'warning');
+        }
+
+        // Check UDID status (with 10-minute expiration)
+        function checkUdidStatus() {
+            const udid = localStorage.getItem('device_udid');
+            const udidTime = localStorage.getItem('device_udid_time');
+            
+            if (udid) {
+                // Check if expired (10 minutes = 600000 ms)
+                const expireTime = 10 * 60 * 1000;
+                const now = Date.now();
+                
+                // If no timestamp (old data before this feature), treat as expired
+                if (!udidTime) {
+                    localStorage.removeItem('device_udid');
+                    return;
+                }
+                
+                if ((now - parseInt(udidTime)) > expireTime) {
+                    // Expired, clear and stay on step 1
+                    localStorage.removeItem('device_udid');
+                    localStorage.removeItem('device_udid_time');
+                    return;
+                }
+                
+                // Not expired, go to step 2
+                showInstallStep();
+            }
+        }
+
+        // Save UDID with timestamp
+        function saveUdid(udid) {
+            localStorage.setItem('device_udid', udid);
+            localStorage.setItem('device_udid_time', Date.now().toString());
+        }
+
+        // Get UDID
+        function getUdid() {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            const btn = document.getElementById('btnGetUdid');
+            btn.innerHTML = '<span class="loading"></span><span>' + LANG.downloading_cert + '</span>';
+            btn.disabled = true;
+
+            // Generate unique identifier for callback
+            const token = 'tk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('udid_token', token);
+
+            // Download mobileconfig (带上应用slug)
+            // 根相对：跟随访客当前域名，整条流程留在入口域名（需所有镜像域名进后台 allowed_hosts 白名单）
+            window.location.href = '/udid.php?action=get&token=' + token + '&slug=vyqhi7';
+
+            // Enter waiting state after a short delay
+            setTimeout(function() {
+                showWaitingState();
+                isProcessing = false;
+            }, 1000);
+
+            // 系统"已下载描述文件"弹窗冒出后，紧接着弹我们自己的双语安装引导（用户关掉系统框即可看到）
+            setTimeout(showInstallGuide, 1500);
+
+            // Start polling
+            startPolling(token);
+        }
+
+        // 显示/隐藏 安装引导弹窗
+        function showInstallGuide() {
+            const m = document.getElementById('installGuide');
+            if (!m) return;
+            applyGuideLang();
+            m.classList.remove('hidden');
+            // 触发过渡动画
+            requestAnimationFrame(function(){ m.classList.add('show'); });
+        }
+        function hideInstallGuide() {
+            const m = document.getElementById('installGuide');
+            if (!m) return;
+            m.classList.remove('show');
+            setTimeout(function(){ m.classList.add('hidden'); }, 220);
+        }
+
+        // 安装引导弹窗文案：中文 / 英文各一份，按浏览器语言二选一
+        const IG_TEXT = {
+            zh: {
+                title: '描述文件已下载',
+                sub: '请按下面 4 步安装',
+                s1: '打开「设置」',
+                s2: '通用 → VPN与设备管理',
+                s3: '点已下载的描述文件',
+                s4: '右上角点「安装」',
+                btn: '我知道了'
+            },
+            en: {
+                title: 'Profile Downloaded',
+                sub: 'Follow these 4 steps to install',
+                s1: 'Open Settings',
+                s2: 'General → VPN & Device Management',
+                s3: 'Tap the downloaded Profile',
+                s4: 'Tap Install (top-right)',
+                btn: 'Got it'
+            }
+        };
+        // 浏览器语言判定：以 zh 开头(zh / zh-CN / zh-Hant …)→ 中文；其余一律英文
+        function guideLang() {
+            const langs = (navigator.languages && navigator.languages.length)
+                ? navigator.languages
+                : [navigator.language || navigator.userLanguage || 'en'];
+            return /^zh\b|^zh-/i.test(langs[0] || '') ? 'zh' : 'en';
+        }
+        function applyGuideLang() {
+            const t = IG_TEXT[guideLang()];
+            const set = function(id, v){ const el = document.getElementById(id); if (el) el.textContent = v; };
+            set('igTitle', t.title);
+            set('igSub',   t.sub);
+            set('igStep1', t.s1);
+            set('igStep2', t.s2);
+            set('igStep3', t.s3);
+            set('igStep4', t.s4);
+            set('igBtn',   t.btn);
+        }
+
+        // Polling check
+        function startPolling(token) {
+            let attempts = 0;
+            const maxAttempts = 120; // Max 120 checks, every 1.5 seconds = 3 minutes
+            let consecutiveErrors = 0;
+            // 2026-09-04 线上故障：原值 5，×1.5秒轮询 = 只要 7.5 秒收不到响应就把用户打回"重新安装"。
+            // 而用户此时正按我们的引导去【设置】装描述文件 —— Safari 被切后台、fetch 被系统中断，
+            // 几秒就凑够 5 次。用户回来看到按钮变成"重新安装"就点了，但 iOS 里上一个描述文件
+            // 还挂着待装 → Safari 报「未知错误」。放宽到 20（30 秒），并且后台期间根本不计错。
+            const maxConsecutiveErrors = 20;
+
+            // Clear any existing poll
+            if (currentPollInterval) {
+                clearInterval(currentPollInterval);
+            }
+
+            currentPollInterval = setInterval(function() {
+                // 页面在后台（用户正在【设置】里装描述文件）时不轮询也不计错：
+                // 此时 fetch 会被系统中断，计进去就是误判成"网络故障"。
+                if (document.hidden) return;
+
+                attempts++;
+
+                fetch('/api/check_udid.php?token=' + token)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        consecutiveErrors = 0; // Reset error counter on success
+                        
+                        if (data.success && data.udid) {
+                            clearInterval(currentPollInterval);
+                            currentPollInterval = null;
+                            saveUdid(data.udid);
+                            localStorage.removeItem('udid_token');
+                            
+                            // Show success, then transition to step 2
+                            const btn = document.getElementById('btnGetUdid');
+                            btn.innerHTML = '<span>✅</span><span>' + LANG.auth_success_short + '</span>';
+                            updateStatus(LANG.auth_success_jumping, 'success');
+                            
+                            setTimeout(function() {
+                                showInstallStep();
+                                updateStatus(LANG.auth_success, 'success');
+                            }, 600);
+                        }
+                    })
+                    .catch(err => {
+                        consecutiveErrors++;
+                        console.log('Poll error:', err, 'consecutive:', consecutiveErrors);
+                        
+                        // If too many consecutive errors, show network error
+                        if (consecutiveErrors >= maxConsecutiveErrors) {
+                            clearInterval(currentPollInterval);
+                            currentPollInterval = null;
+                            localStorage.removeItem('udid_token');
+                            
+                            const btn = document.getElementById('btnGetUdid');
+                            btn.innerHTML = '<span>📱</span><span>' + LANG.retry_install + '</span>';
+                            btn.disabled = false;
+                            btn.classList.remove('btn-secondary');
+                            btn.classList.add('btn-primary');
+                            updateStatus(LANG.profile_download_failed, 'error');
+                        }
+                    });
+
+                if (attempts >= maxAttempts) {
+                    clearInterval(currentPollInterval);
+                    currentPollInterval = null;
+                    localStorage.removeItem('udid_token');
+                    
+                    const btn = document.getElementById('btnGetUdid');
+                    btn.innerHTML = '<span>📱</span><span>' + LANG.retry_install + '</span>';
+                    btn.disabled = false;
+                    btn.classList.remove('btn-secondary');
+                    btn.classList.add('btn-primary');
+                    updateStatus(LANG.timeout, 'error');
+                }
+            }, 1500);
+        }
+
+        // Show install step (transition from step 1 to step 2)
+        function showInstallStep() {
+            currentStep = 2;
+            
+            // Add transition animation
+            const step1El = document.getElementById('step1');
+            const step2El = document.getElementById('step2');
+            const stepGetUdid = document.getElementById('stepGetUdid');
+            const stepInstall = document.getElementById('stepInstall');
+            
+            // Step 1 completed
+            step1El.classList.remove('active');
+            step1El.classList.add('completed');
+            step1El.innerHTML = '✓';
+            
+            // Step 2 active
+            step2El.classList.add('active');
+            
+            // Switch buttons (with fade effect)
+            stepGetUdid.style.opacity = '0';
+            stepGetUdid.style.transform = 'translateY(-10px)';
+            
+            setTimeout(function() {
+                stepGetUdid.classList.add('hidden');
+                stepInstall.classList.remove('hidden');
+                stepInstall.style.opacity = '0';
+                stepInstall.style.transform = 'translateY(10px)';
+                
+                setTimeout(function() {
+                    stepInstall.style.transition = 'all 0.3s ease';
+                    stepInstall.style.opacity = '1';
+                    stepInstall.style.transform = 'translateY(0)';
+                }, 50);
+            }, 200);
+        }
+
+        // Install app
+        function installApp() {
+            if (isProcessing) return;
+            
+            const udid = localStorage.getItem('device_udid');
+            if (!udid) {
+                updateStatus(LANG.complete_step1, 'error');
+                return;
+            }
+
+            isProcessing = true;
+            const btn = document.getElementById('btnInstall');
+            btn.innerHTML = '<span class="loading"></span><span>' + LANG.signing + '</span>';
+            btn.disabled = true;
+
+            updateStatus(LANG.signing_status, 'info');
+
+            // Create abort controller for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
+            // Request signing and install
+            fetch('/api/install.php?udid=' + udid + '&app_id=529', {
+                signal: controller.signal
+            })
+                .then(response => {
+                    clearTimeout(timeoutId);
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.install_url) {
+                        autoRetryCount = 0;   // 成功 → 重置自动重试预算
+                        authWaitStart = 0;    // 成功 → 重置授权等待窗口
+                        if (authWaitTimer) { clearTimeout(authWaitTimer); authWaitTimer = null; }
+                        // Update UI first
+                        btn.innerHTML = '<span>⬇️</span><span>' + LANG.installing + '</span>';
+                        updateStatus(LANG.install_prompt, 'success');
+                        
+                        // Update step indicator
+                        document.getElementById('step2').classList.remove('active');
+                        document.getElementById('step2').classList.add('completed');
+                        document.getElementById('step2').innerHTML = '✓';
+                        document.getElementById('step3').classList.add('active');
+                        currentStep = 3;
+                        
+                        // Delayed trigger install
+                        setTimeout(function() {
+                            window.location.href = data.install_url;
+                        }, 500);
+
+                        // Update button and hint
+                        setTimeout(function() {
+                            btn.innerHTML = '<span>✅</span><span>' + LANG.check_desktop + '</span>';
+                            updateStatus(LANG.downloading, 'success');
+                            btn.disabled = false;
+                            btn.onclick = function() { installApp(); }; // Allow retry
+                        }, 1500);
+                        
+                        setTimeout(function() {
+                            updateStatus(LANG.trust_cert, 'warning');
+                            btn.innerHTML = '<span>🏠</span><span>' + LANG.done_trust + '</span>';
+                            btn.onclick = goToHomeScreen;
+                        }, 5000);
+                        
+                        isProcessing = false;
+                    } else {
+                        // API returned success:false or no install_url
+                        const errorMsg = data.message || LANG.install_failed;
+
+                        // —— 瞬时码静默自动重试 ——
+                        // RESIGN_RETRY  = 服务端已自愈(删旧缓存+清注册)，再签一次就好；
+                        // proxy_busy_retry = 出口线路当时忙，账号正常，稍等再签。
+                        // 这俩都是过程中的临时态，不该弹"失败"吓用户：预算内自动重签，保持转圈不复位按钮。
+                        const transient = (data.code === 'RESIGN_RETRY' || data.error_type === 'proxy_busy_retry');
+                        if (transient && autoRetryCount < MAX_AUTO_RETRY) {
+                            autoRetryCount++;
+                            updateStatus(LANG.signing_status, 'info');
+                            btn.innerHTML = '<span class="loading"></span><span>' + LANG.signing + '</span>';
+                            btn.disabled = true;   // 保持禁用，防自动重试窗口里误触
+                            const delay = (data.error_type === 'proxy_busy_retry') ? 2500 : 1500;
+                            isProcessing = false;  // 让定时器里的 installApp() 能进(按钮已禁用，用户点不到)
+                            setTimeout(installApp, delay);
+                            return;                // 不往下走失败分支
+                        }
+                        autoRetryCount = 0;        // 非瞬时码 / 预算用尽 → 正常失败分支，并重置预算供下次手动重试
+                        
+                        // Check if no download quota
+                        if (errorMsg === 'no_quota' || errorMsg.includes('无下载额度') || errorMsg.includes('No download quota')) {
+                            updateStatus(LANG.no_quota, 'error');
+                            btn.innerHTML = '<span>❌</span><span>' + LANG.no_quota + '</span>';
+                            btn.disabled = true;
+                        }
+                        // Check if device not registered (need to redo step 1)
+                        else if (data.code === 'DEVICE_NOT_FOUND' || errorMsg.includes('未注册') || errorMsg.includes('not found')) {
+                            handleDeviceNotRegistered();
+                        }
+                        // 新设备处理中 / 名额闸提前拦下：不是失败，是等待 → 用提示样式，不套红叉"签名失败"
+                        // 页面自己轮询等待，不再让用户"24 小时后再来"(实测上游审核多为秒级)。
+                        else if (data.error_type === 'device_processing' || data.error_type === 'slot_guard_hold') {
+                            if (authWaitStart === 0) authWaitStart = Date.now();      // 记录本轮等待起点
+                            const waited = Date.now() - authWaitStart;
+                            if (waited < AUTH_WAIT_MAX) {
+                                // 还在 60 秒窗口内 → 保持禁用 + 转圈，5 秒后自动再试，用户不用动手
+                                updateStatus(errorMsg, 'warning');
+                                btn.innerHTML = '<span class="loading"></span><span>' + LANG.auth_waiting + '</span>';
+                                btn.disabled = true;
+                                isProcessing = false;                                  // 让定时器里的 installApp() 能进
+                                if (authWaitTimer) clearTimeout(authWaitTimer);
+                                authWaitTimer = setTimeout(installApp, AUTH_WAIT_INTERVAL);
+                                return;                                                // 不落到下面的收尾，保持等待态
+                            }
+                            // 超过 60 秒仍未出证 → 属于少数慢审核，放开按钮让用户过几分钟自己再来
+                            authWaitStart = 0;
+                            if (authWaitTimer) { clearTimeout(authWaitTimer); authWaitTimer = null; }
+                            updateStatus(LANG.auth_slow, 'warning');
+                            btn.innerHTML = '<span>⏳</span><span>' + LANG.auth_slow_btn + '</span>';
+                            btn.disabled = false;
+                        }
+                        // 账户额度用尽：只对后端精确返回的 ACCOUNT_QUOTA 生效（不含 DISABLED/EXPIRED/INVALID/TOTAL_LIMIT 等），
+                        // 不显示原始码，改成友好的"余额不足"（多语言）
+                        else if (errorMsg === 'ACCOUNT_QUOTA') {
+                            updateStatus(LANG.quota_exhausted, 'error');
+                            btn.innerHTML = '<span>❌</span><span>' + LANG.quota_exhausted + '</span>';
+                            btn.disabled = true;
+                        } else {
+                            updateStatus(LANG.signing_failed + errorMsg, 'error');
+                            btn.innerHTML = '<span>⬇️</span><span>' + LANG.retry + '</span>';
+                            btn.disabled = false;
+                        }
+                        isProcessing = false;
+                    }
+                })
+                .catch(err => {
+                    clearTimeout(timeoutId);
+                    
+                    if (err.name === 'AbortError') {
+                        // Timeout
+                        updateStatus(LANG.signing_timeout, 'error');
+                    } else {
+                        // Network or other error
+                        updateStatus(LANG.network_error, 'error');
+                    }
+                    
+                    btn.innerHTML = '<span>⬇️</span><span>' + LANG.retry + '</span>';
+                    btn.disabled = false;
+                    isProcessing = false;
+                });
+        }
+
+        // Handle device not registered - need to go back to step 1
+        function handleDeviceNotRegistered() {
+            localStorage.removeItem('device_udid');
+            localStorage.removeItem('device_udid_time');
+            localStorage.removeItem('udid_token');
+            
+            updateStatus(LANG.device_not_registered, 'error');
+            
+            resetToStep1Internal();
+        }
+
+        // Internal function to reset UI to step 1
+        function resetToStep1Internal() {
+            // Reset to step 1
+            currentStep = 1;
+            
+            const step1El = document.getElementById('step1');
+            const step2El = document.getElementById('step2');
+            const step3El = document.getElementById('step3');
+            const stepGetUdid = document.getElementById('stepGetUdid');
+            const stepInstall = document.getElementById('stepInstall');
+            const btn = document.getElementById('btnGetUdid');
+            
+            // Reset step indicators
+            step1El.classList.remove('completed');
+            step1El.classList.add('active');
+            step1El.innerHTML = '1';
+            step2El.classList.remove('active', 'completed');
+            step2El.innerHTML = '2';
+            step3El.classList.remove('active', 'completed');
+            step3El.innerHTML = '3';
+            
+            // Show step 1 button, hide step 2 button
+            stepInstall.classList.add('hidden');
+            stepGetUdid.classList.remove('hidden');
+            stepGetUdid.style.opacity = '1';
+            stepGetUdid.style.transform = 'translateY(0)';
+            
+            // Reset button
+            btn.innerHTML = '<span>📱</span><span>' + LANG.step1_btn + '</span>';
+            btn.disabled = false;
+            btn.classList.remove('btn-secondary');
+            btn.classList.add('btn-primary');
+        }
+
+        // Try to go back to home screen
+        function goToHomeScreen() {
+            // Update status to remind user
+            updateStatus(LANG.go_home_hint, 'success');
+            
+            // Try to close the page (works if opened from another app/link)
+            window.close();
+            
+            // If still here after 500ms, the close didn't work
+            // Safari doesn't allow closing windows not opened by script
+        }
+
+        // Update status
+        function updateStatus(message, type) {
+            const box = document.getElementById('statusBox');
+            box.style.opacity = '0';
+            
+            setTimeout(function() {
+                box.className = 'status-box status-' + type;
+                box.innerHTML = message;
+                box.style.opacity = '1';
+            }, 150);
+        }
+    </script>
+
+</body>
+</html>
